@@ -1,30 +1,42 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:myportofolio_mobile/main.dart';
+import 'package:myportofolio_mobile/menu.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('Halaman utama menampilkan identitas dan tombol aksi',
+      (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('NPM'), findsOneWidget);
+    expect(find.text('Name'), findsOneWidget);
+    expect(find.text('Class'), findsOneWidget);
+    expect(find.text('2506620210'), findsOneWidget);
+    expect(find.text('Roisul Umam'), findsOneWidget);
+    expect(find.text('PBP F'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(find.text('Lihat Proyek'), findsOneWidget);
+    expect(find.text('Tambah Proyek'), findsOneWidget);
+    expect(find.text('Logout'), findsOneWidget);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('Setiap tombol aksi punya warna yang berbeda', () {
+    final items = MyHomePage().items;
+    final colors = items.map((item) => item.color).toSet();
+
+    expect(items.length, greaterThanOrEqualTo(3));
+    expect(colors.length, items.length);
+  });
+
+  testWidgets('Menekan tombol menampilkan SnackBar sesuai nama tombol',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+
+    for (final name in ['Lihat Proyek', 'Tambah Proyek', 'Logout']) {
+      await tester.tap(find.text(name));
+      await tester.pump();
+      expect(find.text('Kamu telah menekan tombol $name!'), findsOneWidget);
+    }
   });
 }
