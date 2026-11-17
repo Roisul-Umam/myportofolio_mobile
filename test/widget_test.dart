@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:myportofolio_mobile/main.dart';
-import 'package:myportofolio_mobile/menu.dart';
+import 'package:myportofolio_mobile/screens/menu.dart';
 
 void main() {
   testWidgets('Halaman utama menampilkan identitas dan tombol aksi',
@@ -35,8 +35,24 @@ void main() {
 
     for (final name in ['Lihat Proyek', 'Tambah Proyek', 'Logout']) {
       await tester.tap(find.text(name));
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(find.text('Kamu telah menekan tombol $name!'), findsOneWidget);
+
+      // "Tambah Proyek" membuka form; kembali ke home sebelum tombol berikutnya
+      if (name == 'Tambah Proyek') {
+        tester.state<NavigatorState>(find.byType(Navigator)).pop();
+        await tester.pumpAndSettle();
+      }
     }
+  });
+
+  testWidgets('Tombol Tambah Proyek membuka halaman form',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+
+    await tester.tap(find.text('Tambah Proyek'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Project Form'), findsOneWidget);
   });
 }
