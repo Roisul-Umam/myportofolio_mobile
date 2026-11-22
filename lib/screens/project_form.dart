@@ -1,5 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:myportofolio_mobile/widgets/unsaved_changes_scope.dart';
+
+const String _defaultCategory = 'Web Development';
 
 class ProjectFormPage extends StatefulWidget {
   const ProjectFormPage({super.key});
@@ -12,7 +15,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
   final _formKey = GlobalKey<FormState>();
   String _projectName = "";
   String _description = "";
-  String _category = "Web Development"; // default
+  String _category = _defaultCategory;
   String _technologies = "";
   String _projectLink = "";
 
@@ -24,8 +27,37 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
     'Other',
   ];
 
+  bool get _hasUnsavedChanges =>
+      _projectName.trim().isNotEmpty ||
+      _description.trim().isNotEmpty ||
+      _technologies.trim().isNotEmpty ||
+      _projectLink.trim().isNotEmpty ||
+      _category != _defaultCategory;
+
+  /// Mengembalikan `true` jika halaman boleh ditinggalkan.
+  Future<bool> _confirmLeave() async =>
+      !_hasUnsavedChanges || await confirmDiscardChanges(context);
+
+  void _resetForm() {
+    _formKey.currentState!.reset();
+    setState(() {
+      _projectName = "";
+      _description = "";
+      _category = _defaultCategory;
+      _technologies = "";
+      _projectLink = "";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    return UnsavedChangesScope(
+      hasUnsavedChanges: _hasUnsavedChanges,
+      child: _buildPage(context),
+    );
+  }
+
+  Widget _buildPage(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Center(
@@ -36,7 +68,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
       ),
-      drawer: const LeftDrawer(),
+      drawer: LeftDrawer(onBeforeNavigate: _confirmLeave),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -102,7 +134,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
-                  initialValue: _category,
+                  initialValue: _defaultCategory,
                   items: _categories
                       .map((category) => DropdownMenuItem(
                             value: category,
@@ -161,9 +193,9 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all(Colors.indigo),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        showDialog(
+                        await showDialog<void>(
                           context: context,
                           builder: (context) {
                             return AlertDialog(
@@ -185,13 +217,13 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                                   child: const Text('OK'),
                                   onPressed: () {
                                     Navigator.pop(context);
-                                    _formKey.currentState!.reset();
                                   },
                                 ),
                               ],
                             );
                           },
                         );
+                        if (mounted) _resetForm();
                       }
                     },
                     child: const Text(
