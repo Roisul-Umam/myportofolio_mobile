@@ -4,15 +4,39 @@ Aplikasi mobile Flutter untuk portofolio saya (Roisul Umam).
 
 ## Fitur Saat Ini
 
-- Halaman utama (`lib/menu.dart`, `StatelessWidget`) dengan 3 `InfoCard`: NPM, Name, dan Class.
-- 3 tombol aksi `ItemCard` dengan warna latar berbeda: **Lihat Proyek** (biru), **Tambah Proyek** (hijau), dan **Logout** (merah).
+- Halaman utama (`lib/screens/menu.dart`, `StatelessWidget`) dengan 3 `InfoCard`: NPM, Name, dan Class.
+- 4 tombol aksi `ItemCard` dengan warna latar berbeda: **Lihat Proyek** (biru), **Tambah Proyek** (hijau), **Tambah Pengalaman** (ungu), dan **Logout** (merah).
 - `SnackBar` bertuliskan "Kamu telah menekan tombol [Nama Tombol]!" saat tombol ditekan.
+- Drawer yang sama di semua halaman dengan opsi **Home**, **Add Project**, dan **Add Experience**.
+- Formulir proyek dan formulir pengalaman dengan validasi dan dialog ringkasan.
+- **Fitur tambahan Tugas 8:** dialog "Buang perubahan?" saat pengguna meninggalkan formulir proyek atau pengalaman yang belum disimpan, baik lewat tombol kembali maupun opsi drawer.
+
+### Aturan Formulir Pengalaman
+
+Field mengikuti model Django `Experience` pada proyek web portofolio.
+
+| Field model | Input | Aturan |
+| --- | --- | --- |
+| `title` | `TextFormField` | Wajib, tidak boleh hanya spasi, maksimal 255 karakter |
+| `description` | `TextFormField` multiline | Wajib, tidak boleh hanya spasi |
+| `category` | `DropdownButtonFormField` | Salah satu dari 7 pilihan model, default Full-Time |
+| `thumbnail` | `TextFormField` | Opsional, harus URL `http`/`https` dengan domain, maksimal 200 karakter |
+| `started_at` | Tampilan terkunci | Otomatis hari ini karena model memakai `auto_now_add` |
+| `ended_at` | `showDatePicker()` | Opsional, tidak boleh sebelum tanggal mulai, kosong berarti masih berlangsung |
 
 ## Struktur Proyek
 
 - `lib/main.dart`: titik masuk aplikasi dan `MaterialApp` (tema dan halaman awal).
-- `lib/menu.dart`: `MyHomePage`, `InfoCard`, `ItemCard`, dan model `ItemHomepage` (nama, ikon, warna).
+- `lib/screens/menu.dart`: `MyHomePage`, `InfoCard`, dan model `ItemHomepage` (nama, ikon, warna).
+- `lib/screens/project_form.dart`: formulir tambah proyek.
+- `lib/screens/experience_form.dart`: formulir tambah pengalaman.
+- `lib/validators/experience_validators.dart`: aturan validasi formulir pengalaman.
+- `lib/widgets/left_drawer.dart`: drawer navigasi yang dipakai bersama.
+- `lib/widgets/project_card.dart`: `ItemCard` untuk tombol aksi.
+- `lib/widgets/unsaved_changes_scope.dart`: dialog dan pengaman keluar yang dipakai kedua formulir.
 - `test/widget_test.dart`: widget test untuk halaman utama.
+- `test/experience_form_test.dart`: test navigasi, validasi, dialog, dan layar sempit pada formulir pengalaman.
+- `test/project_form_test.dart`: test konfirmasi keluar dan reset pada formulir proyek.
 
 ## Cara Menjalankan
 
@@ -32,6 +56,8 @@ Aplikasi mobile Flutter untuk portofolio saya (Roisul Umam).
 
 - **Tutorial 08**: setup Flutter, memisahkan `menu.dart` dari `main.dart`, `MyHomePage` menjadi `StatelessWidget`, dan membuat `InfoCard` serta `ItemCard`.
 - **Tugas 7**: identitas pemilik portofolio, 3 tombol aksi dengan warna berbeda lewat atribut `color` di `ItemHomepage`, SnackBar interaktif, dan `flutter analyze` bersih.
+- **Tutorial 09**: formulir Tambah Proyek, drawer navigasi, dan pemisahan kode ke `lib/screens/` serta `lib/widgets/`.
+- **Tugas 8**: formulir Pengalaman sesuai model `Experience` dengan validasi dan dialog ringkasan, kartu aksi dan opsi drawer baru, tata letak halaman utama yang aman di layar ponsel, serta konfirmasi sebelum meninggalkan formulir yang belum disimpan.
 
 ### Tugas 7
 
@@ -63,6 +89,16 @@ Aplikasi mobile Flutter untuk portofolio saya (Roisul Umam).
 
 6. *Hot reload* masukin perubahan kode ke aplikasi yang sedang running trus di rebuild widget tree tanpa ngilangin state, jadi perubahan tampilan keliatan hampir sebentar. *Hot restart* ngejalanin ulang aplikasi dari `main()` dan ngereset semua state, tapi tetep lebih cepet dari full build. Hot reload gacukup kalo aku ngubah `main()`, value awal variabel global/static, atau logika `initState`, karena kode itu cuma dijalanin sekali di awal, jadi perlu hot restart. Full restart (stop lalu run ulang) diperlukan kalo aku ngubah kode native (Gradle, `AndroidManifest.xml`, konfigurasi iOS) atau nambah plugin baru di `pubspec.yaml`.
 
+### Tugas 8
+
+1. Yap, aku pake `Navigator.push()` buat buka page `form` baru tanpa ngehapus `main page` sebelumnya, jadi user masih bisa balik ke `main page` pake button `back`. Truss jugak, `Navigator.pushReplacement()` aku pake di menu `Home` di drawer buat ngeganti page yang lagi dibuka bareng `main page`. Dengan begitu, navigasi `antarhalaman` bisa jalan sesuai kebutuhan.
+
+2. Aku pake `Scaffold` sebagai kerangka dasar setiap page supaya posisi `AppBar`, `Drawer`, dan `Body` tetap konsisten. Teruss, aku bikin `LeftDrawer` secara terpisah supaya bisa dipake lagi di `main page` maupun page form tanpa harus rewrite kodenya. Aku juga pake `Theme.of(context).colorScheme.primary` biar warna `AppBar` ngikutin tema aplikasi, jadi pas warna tema diubah, tampilannya ikut nyesuai-in.
+
+3. Aku nyusun `form` pake `Column` karna menurutku susunan input yang vertikal itu kaya lebih mudah dipake, apalagi di layar `mobile`. Aku juga pake `Padding` ama `spacing` buat ngatur jarak `antar-elemen` biar tampilannya lebih rapi. Trus juga, `SafeArea` dipake supaya konten gak ketutup area sistem, sedangkan `SingleChildScrollView` bikin pengguna tetap ngakses semua input dan button `Simpan` pas ukuran `form` ngelebihin layar, misal pas keyboard muncul.
+
+4. Aku pake `GlobalKey<FormState>` buat nyambungin button `Simpan` dengan state dari `form`, sehingga setiap input bisa di cek pake `validate()`. Di setiap input, aku nambahin `validator` buat mastiin data yang dimasukkin sesuai sama ketentuan. Kalo ada input yang ga valid, massage `error` bakal ditampil-in dan dialog ringkasan gaakan muncul. Contohnya aja pas user masuk-in yg bukan URL pada bagian URL Thumbnail. Aku juga pake `TextInputType.url` buat mempermudah pengguna ngetik URL, tetapi format URL tetep aja perlu di cek pake validator karna user masih bisa masuk-in teks dengan format apa pun.
+
 ## AI Disclosure Tugas 7
 
 AI (Claude) ngebantu aku buat memandu Tugas 7 pada proyek `myportofolio_mobile`. Aku ngasih tau AI perihal tugas 7 ini lalu meminta dia buat memeriksa apa saja yang kurang di proyek aku sebelum tugas 7 dikerjakan.
@@ -84,3 +120,28 @@ AI (Claude) ngebantu aku buat memandu Tugas 7 pada proyek `myportofolio_mobile`.
 - Aku menjalankan `flutter analyze` dan `flutter test`, lalu memastikan hasilnya bersih dan lulus.
 - Aku menjalankan aplikasi di emulator/perangkat untuk memastikan warna tiap tombol berbeda dan SnackBar muncul sesuai nama tombol.
 - Aku memeriksa ulang data NPM, nama, dan kelas, lalu memahami dan memeriksa kode dari AI sebelum di-commit secara bertahap.
+
+## AI Disclosure Tugas 8
+
+Tugas 8 dikerjakan dengan bantuan Claude Code.
+
+### Cakupan Bantuan AI
+
+- Membaca instruksi tugas, kode proyek mobile, dan model `Experience` di proyek Django.
+- Memperbaiki `experience_validators.dart`, dan `experience_form_test.dart` yang sebelumnya error dan berantakan.
+- Menambahkan kartu aksi dan opsi drawer, lalu memperbarui test halaman utama.
+- Menambahkan konfirmasi keluar di formulir proyek dan pengalaman lewat komponen `UnsavedChangesScope` (berbasis `PopScope`) dan pengaman navigasi pada `LeftDrawer`.
+
+### Keterbatasan AI yang Diidentifikasi
+
+- **AI sempat salah memilih bagian.** Karena belum menemukan proyek Django, AI awalnya membuat formulir Sertifikasi yang tidak ada modelnya. Setelah aku menunjukkan lokasi proyeknya, formulir diganti menjadi Pengalaman sesuai model `Experience`.
+- **AI awalnya memasang konfirmasi keluar hanya di formulir pengalaman.** Aku yang menemukan formulir proyek belum punya fitur yang sama.
+- **AI belum mencoba aplikasi di emulator atau perangkat Android**, dan papan ketik virtual tidak ikut diuji di browser.
+- **Font bawaan `flutter test` berbeda dari font aplikasi**, jadi hasil test layout tetap perlu dicek secara visual.
+
+### Penyesuaian Manual yang Dilakukan
+
+- Menjalankan `flutter analyze`, `flutter test`, dan mencoba alur formulir di browser pada ukuran 360x640.
+- Memperbaiki reset formulir proyek agar nilai yang tersimpan di state ikut kosong setelah dialog ditutup.
+- Memperbaiki tata letak halaman utama yang meluap di layar ponsel.
+- Menulis `experience_form.dart`, `experience_validators.dart`, dan `experience_form_test.dart`
