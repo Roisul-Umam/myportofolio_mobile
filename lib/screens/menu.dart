@@ -20,6 +20,7 @@ class MyHomePage extends StatelessWidget {
   final List<ItemHomepage> items = [
     ItemHomepage("Lihat Proyek", Icons.folder_open, Colors.blue),
     ItemHomepage("Tambah Proyek", Icons.add, Colors.green),
+    ItemHomepage("Tambah Pengalaman", Icons.work_outline, Colors.deepPurple),
     ItemHomepage("Logout", Icons.logout, Colors.red),
   ];
 
@@ -41,11 +42,10 @@ class MyHomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                InfoCard(title: 'NPM', content: npm),
-                InfoCard(title: 'Name', content: name),
-                InfoCard(title: 'Class', content: className),
+                Expanded(child: InfoCard(title: 'NPM', content: npm)),
+                Expanded(child: InfoCard(title: 'Name', content: name)),
+                Expanded(child: InfoCard(title: 'Class', content: className)),
               ],
             ),
             const SizedBox(height: 16.0),
@@ -60,7 +60,8 @@ class MyHomePage extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
-              crossAxisCount: 3,
+              // Dua kolom di ponsel supaya label kartu tetap terbaca.
+              crossAxisCount: MediaQuery.sizeOf(context).width < 480 ? 2 : 3,
               shrinkWrap: true,
               children: items.map((ItemHomepage item) => ItemCard(item)).toList(),
             ),
@@ -81,14 +82,19 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2.0,
-      child: Container(
-        width: MediaQuery.of(context).size.width / 3.5,
-        padding: const EdgeInsets.all(16.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
         child: Column(
           children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
             const SizedBox(height: 8.0),
-            Text(content),
+            FittedBox(fit: BoxFit.scaleDown, child: Text(content)),
           ],
         ),
       ),

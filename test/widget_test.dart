@@ -18,6 +18,7 @@ void main() {
 
     expect(find.text('Lihat Proyek'), findsOneWidget);
     expect(find.text('Tambah Proyek'), findsOneWidget);
+    expect(find.text('Tambah Pengalaman'), findsOneWidget);
     expect(find.text('Logout'), findsOneWidget);
   });
 
@@ -33,13 +34,20 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
 
-    for (final name in ['Lihat Proyek', 'Tambah Proyek', 'Logout']) {
+    for (final name in [
+      'Lihat Proyek',
+      'Tambah Proyek',
+      'Tambah Pengalaman',
+      'Logout',
+    ]) {
+      await tester.ensureVisible(find.text(name));
+      await tester.pumpAndSettle();
       await tester.tap(find.text(name));
       await tester.pumpAndSettle();
       expect(find.text('Kamu telah menekan tombol $name!'), findsOneWidget);
 
-      // "Tambah Proyek" membuka form; kembali ke home sebelum tombol berikutnya
-      if (name == 'Tambah Proyek') {
+      // Tombol "Tambah ..." membuka form; kembali ke home sebelum tombol berikutnya
+      if (name.startsWith('Tambah')) {
         tester.state<NavigatorState>(find.byType(Navigator)).pop();
         await tester.pumpAndSettle();
       }
