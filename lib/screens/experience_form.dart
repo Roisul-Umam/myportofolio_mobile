@@ -145,25 +145,15 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
       hintText: hint,
       errorMaxLines: 2,
       suffixIcon: suffixIcon,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return UnsavedChangesScope(
       hasUnsavedChanges: _hasUnsavedChanges,
       child: Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.white),
-          title: const Text(
-            'Add Experience Form',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: colorScheme.primary,
-        ),
+        appBar: AppBar(title: const Text('Add Experience Form')),
         drawer: LeftDrawer(onBeforeNavigate: _confirmLeave),
         body: SafeArea(
           child: Form(

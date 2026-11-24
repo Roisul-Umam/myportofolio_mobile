@@ -7,15 +7,16 @@ import 'package:myportofolio_mobile/screens/experience_form.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/validators/experience_validators.dart';
 
+import 'helpers/fake_backend.dart';
+import 'helpers/home_actions.dart';
+
 const _formTitle = 'Add Experience Form';
 
 Finder _field(String label) => find.widgetWithText(TextFormField, label);
 
 Future<void> _openFormFromCard(WidgetTester tester) async {
-  await tester.pumpWidget(const MyApp());
-  await tester.ensureVisible(find.text('Tambah Pengalaman'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('Tambah Pengalaman'));
+  await tester.pumpWidget(MyApp(apiClient: FakeBackend().apiClient));
+  await tapHomeAction(tester, 'Tambah Pengalaman');
   await tester.pumpAndSettle();
 }
 
@@ -26,6 +27,9 @@ Future<void> _openDrawer(WidgetTester tester) async {
 
 Future<void> _tapSave(WidgetTester tester) async {
   await tester.ensureVisible(find.text('Simpan'));
+  await tester.pumpAndSettle();
+  // Gulir sampai mentok supaya tombol naik di atas SnackBar mengambang.
+  await tester.drag(find.byType(Form), const Offset(0, -400));
   await tester.pumpAndSettle();
   await tester.tap(find.text('Simpan'));
   await tester.pumpAndSettle();
@@ -52,7 +56,7 @@ void main() {
     testWidgets('Drawer membuka form dan Home kembali ke halaman utama', (
       tester,
     ) async {
-      await tester.pumpWidget(const MyApp());
+      await tester.pumpWidget(MyApp(apiClient: FakeBackend().apiClient));
 
       await _openDrawer(tester);
       expect(find.text('Home'), findsOneWidget);
@@ -217,7 +221,7 @@ void main() {
         () => messenger.setMockMethodCallHandler(SystemChannels.platform, null),
       );
 
-      await tester.pumpWidget(const MyApp());
+      await tester.pumpWidget(MyApp(apiClient: FakeBackend().apiClient));
       await _openDrawer(tester);
       await tester.tap(find.text('Add Experience'));
       await tester.pumpAndSettle();
