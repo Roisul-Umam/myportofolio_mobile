@@ -1,3 +1,5 @@
+import 'package:myportofolio_mobile/validators/url_validator.dart';
+
 /// Aturan validasi formulir pengalaman, mengikuti model Django `Experience`.
 ///
 /// Dipisahkan dari widget supaya aturannya bisa diuji tanpa merender UI.
@@ -7,7 +9,7 @@ abstract final class ExperienceValidators {
   static const int maxTitleLength = 255;
 
   /// Panjang bawaan Django untuk `URLField`.
-  static const int maxUrlLength = 200;
+  static const int maxUrlLength = webUrlMaxLength;
 
   static String? title(String? value) {
     final text = value?.trim() ?? '';
@@ -28,22 +30,8 @@ abstract final class ExperienceValidators {
   }
 
   /// `thumbnail` opsional, tetapi jika diisi harus http(s) dengan domain.
-  static String? thumbnail(String? value) {
-    final url = value?.trim() ?? '';
-    if (url.isEmpty) {
-      return null;
-    }
-    if (url.length > maxUrlLength) {
-      return 'URL maksimal $maxUrlLength karakter!';
-    }
-
-    final uri = url.contains(RegExp(r'\s')) ? null : Uri.tryParse(url);
-    final hasWebScheme = uri?.scheme == 'http' || uri?.scheme == 'https';
-    if (!hasWebScheme || !(uri?.host.contains('.') ?? false)) {
-      return 'Masukkan URL valid, contoh: https://example.com/gambar.png';
-    }
-    return null;
-  }
+  static String? thumbnail(String? value) =>
+      validateWebUrl(value, example: 'https://example.com/gambar.png');
 
   /// `ended_at` opsional; kosong berarti pengalaman masih berlangsung.
   ///
