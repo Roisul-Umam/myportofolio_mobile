@@ -4,8 +4,8 @@ import 'package:myportofolio_mobile/screens/menu.dart';
 
 /// Menggulir ke kartu aksi cepat di Home lalu mengetuknya.
 ///
-/// Kartu aksi berada di bawah banner, jadi bisa di luar layar test dan
-/// belum dibangun oleh ListView sebelum digulir.
+/// Kartu aksi berada di bawah banner dan barisnya bisa digulir ke samping,
+/// jadi kartu bisa di luar layar test sebelum digulir.
 Future<void> tapHomeAction(WidgetTester tester, String name) async {
   final finder = find.text(name);
   await tester.scrollUntilVisible(
@@ -18,6 +18,8 @@ Future<void> tapHomeAction(WidgetTester tester, String name) async {
         )
         .first,
   );
+  // Menggulir baris aksi ke samping jika kartunya terpotong.
+  await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
   await tester.tap(finder);
 }
