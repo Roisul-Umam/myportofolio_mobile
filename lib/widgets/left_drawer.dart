@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/screens/experience_list_screen.dart';
 import 'package:myportofolio_mobile/screens/login_screen.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
@@ -111,10 +112,22 @@ class LeftDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
+            leading: const Icon(Icons.timeline),
+            title: const Text('Experiences'),
+            onTap: () => _replacePage(
+              context,
+              (context) => const ExperienceListScreen(),
+            ),
+          ),
+          ListTile(
             leading: const Icon(Icons.work_outline),
             title: const Text('Add Experience'),
-            onTap: () =>
-                _replacePage(context, (context) => const ExperienceFormPage()),
+            // Menambah pengalaman butuh token, jadi wajib login dulu.
+            onTap: () => _replacePage(
+              context,
+              (context) => const ExperienceFormPage(),
+              requiresLogin: true,
+            ),
           ),
           const Divider(),
           if (isLoggedIn)

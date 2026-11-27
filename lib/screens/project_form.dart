@@ -2,7 +2,6 @@ import 'package:http/http.dart' as http;
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/models/project.dart';
 import 'package:myportofolio_mobile/services/api_client.dart';
-import 'package:myportofolio_mobile/services/auth_state.dart';
 import 'package:myportofolio_mobile/validators/project_validators.dart';
 import 'package:myportofolio_mobile/widgets/auth_guard.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
@@ -102,27 +101,15 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
     }
   }
 
-  /// Mengirim proyek. Jika token ditolak (401), sesi dihapus dan pengguna
-  /// diminta login ulang, lalu pengiriman dicoba sekali lagi.
-  Future<Project?> _createProjectWithRelogin() async {
+  /// Mengirim proyek dengan token; 401 ditangani oleh [runWithRelogin].
+  Future<Project?> _createProjectWithRelogin() {
     final apiClient = context.read<ApiClient>();
-    final auth = context.read<AuthState>();
-    Future<Project> send() => _whileSubmitting(
-      () => apiClient.createProject(_buildProject(), token: auth.token!),
+    return runWithRelogin(
+      context,
+      (token) => _whileSubmitting(
+        () => apiClient.createProject(_buildProject(), token: token),
+      ),
     );
-
-    try {
-      return await send();
-    } on ApiException catch (error) {
-      if (error.statusCode != 401) rethrow;
-
-      await auth.logout();
-      if (!mounted) return null;
-      _showSnackBar('Sesi login berakhir. Silakan login ulang.');
-      if (!await ensureLoggedIn(context) || !mounted) return null;
-
-      return send();
-    }
   }
 
   Future<void> _showCreatedDialog(Project project) {

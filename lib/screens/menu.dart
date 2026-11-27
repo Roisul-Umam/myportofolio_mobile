@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/models/project.dart';
-import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/screens/experience_list_screen.dart';
 import 'package:myportofolio_mobile/screens/project_detail_screen.dart';
 import 'package:myportofolio_mobile/screens/project_list_screen.dart';
 import 'package:myportofolio_mobile/services/api_client.dart';
@@ -30,6 +30,7 @@ class MyHomePage extends StatefulWidget {
   final List<ItemHomepage> items = [
     ItemHomepage("Lihat Proyek", Icons.folder_open, Colors.blue),
     ItemHomepage("Tambah Proyek", Icons.add, Colors.green),
+    ItemHomepage("Lihat Pengalaman", Icons.timeline, Colors.orange),
     ItemHomepage("Tambah Pengalaman", Icons.work_outline, Colors.deepPurple),
     ItemHomepage("Logout", Icons.logout, Colors.red),
   ];
@@ -79,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const ExperienceFormPage()),
+          MaterialPageRoute(builder: (context) => const ExperienceListScreen()),
         );
       case 3:
         _openAccount();
@@ -140,12 +141,19 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 24),
               const _SectionTitle('Aksi Cepat'),
               const SizedBox(height: 12),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (final item in widget.items)
-                    Expanded(child: ItemCard(item)),
-                ],
+              // Lima aksi tidak muat di ponsel sempit, jadi baris ini bisa
+              // digulir ke samping seperti baris kategori di desain acuan.
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
+                  children: [
+                    for (final item in widget.items)
+                      SizedBox(width: 86, child: ItemCard(item)),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
               _SectionTitle(

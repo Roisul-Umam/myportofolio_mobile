@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/screens/experience_list_screen.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
 import 'package:myportofolio_mobile/screens/project_list_screen.dart';
@@ -36,11 +37,19 @@ class ItemCard extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const ProjectFormPage()),
           );
         }
-      case "Tambah Pengalaman":
+      case "Lihat Pengalaman":
         showMessage("Kamu telah menekan tombol ${item.name}!");
         navigator.push(
-          MaterialPageRoute(builder: (context) => const ExperienceFormPage()),
+          MaterialPageRoute(builder: (context) => const ExperienceListScreen()),
         );
+      case "Tambah Pengalaman":
+        showMessage("Kamu telah menekan tombol ${item.name}!");
+        // Form pengalaman mengirim data dengan token, jadi wajib login dulu.
+        if (await ensureLoggedIn(context)) {
+          navigator.push(
+            MaterialPageRoute(builder: (context) => const ExperienceFormPage()),
+          );
+        }
       case "Logout":
         final auth = context.read<AuthState>();
         if (!auth.isLoggedIn) {

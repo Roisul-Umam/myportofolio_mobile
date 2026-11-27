@@ -28,6 +28,7 @@ void main() {
 
     expect(find.text('Lihat Proyek'), findsOneWidget);
     expect(find.text('Tambah Proyek'), findsOneWidget);
+    expect(find.text('Lihat Pengalaman'), findsOneWidget);
     expect(find.text('Tambah Pengalaman'), findsOneWidget);
     expect(find.text('Logout'), findsOneWidget);
   });
@@ -45,12 +46,15 @@ void main() {
   ) async {
     await tester.pumpWidget(MyApp(apiClient: FakeBackend().apiClient));
 
-    // Tiga tombol ini membuka halaman lain (Tambah Proyek membuka Login
+    // Empat tombol ini membuka halaman lain (tombol Tambah membuka Login
     // karena belum login), jadi kembali ke home sebelum tombol berikutnya.
-    for (final name in ['Lihat Proyek', 'Tambah Proyek', 'Tambah Pengalaman']) {
-      await tester.ensureVisible(find.text(name));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(name));
+    for (final name in [
+      'Lihat Proyek',
+      'Tambah Proyek',
+      'Lihat Pengalaman',
+      'Tambah Pengalaman',
+    ]) {
+      await tapHomeAction(tester, name);
       await tester.pumpAndSettle();
       expect(find.text('Kamu telah menekan tombol $name!'), findsOneWidget);
 
@@ -58,8 +62,6 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    await tester.ensureVisible(find.text('Logout'));
-    await tester.pumpAndSettle();
     await tapHomeAction(tester, 'Logout');
     await tester.pumpAndSettle();
     expect(find.text('Kamu belum login.'), findsOneWidget);
