@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:myportofolio_mobile/config.dart';
+import 'package:myportofolio_mobile/models/experience.dart';
 import 'package:myportofolio_mobile/models/project.dart';
 
 /// Exception thrown when an API request returns a non-2xx status code.
@@ -71,8 +72,9 @@ String describeApiError(Object error) {
 /// Header ditulis sebagai string biasa, bukan `HttpHeaders` dari `dart:io`,
 /// supaya tetap bisa di-build untuk Flutter Web.
 class ApiClient {
-  ApiClient({http.Client? client, this.baseUrl = apiBaseUrl})
-    : _client = client ?? http.Client();
+  ApiClient({http.Client? client, String? baseUrl})
+    : _client = client ?? http.Client(),
+      baseUrl = baseUrl ?? apiBaseUrl;
 
   final http.Client _client;
   final String baseUrl;
@@ -98,17 +100,56 @@ class ApiClient {
   }) async {
     final response = await _client.post(
       _uri('/api/v1/projects/'),
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Token $token',
-      },
+      headers: _authJsonHeaders(token),
       body: jsonEncode(project.toJson()),
     );
     _ensureSuccess(response);
 
     return Project.fromJson(_decode(response) as Map<String, dynamic>);
   }
+
+  /// Daftar pengalaman bersifat publik, jadi tidak mengirim token.
+  Future<List<Experience>> getExperiences() async {
+    final response = await _client.get(
+      _uri('/api/v1/experience/'),
+      headers: const {'Accept': 'application/json'},
+    );
+    _ensureSuccess(response);
+
+    final decoded = _decode(response) as List<dynamic>;
+    return decoded
+        .map((item) => Experience.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Experience> createExperience(
+    Experience experience, {
+    required String token,
+  }) async {
+    final response = await _client.post(
+      _uri('/api/v1/experience/'),
+      headers: _authJsonHeaders(token),
+      body: jsonEncode(experience.toJson()),
+    );
+    _ensureSuccess(response);
+
+    return Experience.fromJson(_decode(response) as Map<String, dynamic>);
+  }
+
+  /// Menghapus pengalaman; server menjawab 204 No Content jika berhasil.
+  Future<void> deleteExperience(String id, {required String token}) async {
+    final response = await _client.delete(
+      _uri('/api/v1/experience/$id/'),
+      headers: {'Accept': 'application/json', 'Authorization': 'Token $token'},
+    );
+    _ensureSuccess(response);
+  }
+
+  Map<String, String> _authJsonHeaders(String token) => {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json; charset=UTF-8',
+    'Authorization': 'Token $token',
+  };
 
   Future<String> obtainToken(String username, String password) async {
     final response = await _client.post(
